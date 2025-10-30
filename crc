@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+// Function to compute CRC (generic)
+unsigned int compute_crc(unsigned char *data, int length, unsigned int poly, unsigned int crc, int width)
+{
+    int i, j;
+    unsigned int msb_mask = 1 << (width - 1);
+    unsigned int mask = ((1 << width) - 1);  // e.g., width=12 => mask=0xFFF
+
+    for (i = 0; i < length; i++) {
+        crc ^= (data[i] << (width - 8)); // align byte with MSB
+        for (j = 0; j < 8; j++) {
+            if (crc & msb_mask)
+                crc = (crc << 1) ^ poly;
+            else
+                crc <<= 1;
+        }
+        crc &= mask;  // trim to CRC width
+    }
+    return crc & mask;
+}
+
+int main()
+{
+    unsigned char data[256];
+    printf("Enter a string: ");
+    fgets((char*)data, sizeof(data), stdin);
+    data[strcspn((char*)data, "\n")] = 0;  // remove newline
+
+    int length = strlen((char*)data);
+
+    // CRC-12 parameters
+    unsigned int crc12_poly = 0x80F;   // x^12 + x^11 + x^3 + x^2 + x + 1
+    unsigned int crc12_init = 0x000;
+    unsigned int crc12 = compute_crc(data, length, crc12_poly, crc12_init, 12);
+
+    // CRC-16 (IBM)
+    unsigned int crc16_poly = 0x8005;  // x^16 + x^15 + x^2 + 1
+    unsigned int crc16_init = 0x0000;
+    unsigned int crc16 = compute_crc(data, length, crc16_poly, crc16_init, 16);
+
+    // CRC-CCITT
+    unsigned int crc_ccitt_poly = 0x1021;  // x^16 + x^12 + x^5 + 1
+    unsigned int crc_ccitt_init = 0xFFFF;
+    unsigned int crc_ccitt = compute_crc(data, length, crc_ccitt_poly, crc_ccitt_init, 16);
+
+    printf("\nInput Data: %s\n", data);
+    printf("CRC-12     : 0x%03X\n", crc12);
+    printf("CRC-16     : 0x%04X\n", crc16);
+    printf("CRC-CCITT  : 0x%04X\n", crc_ccitt);
+
+    return 0;
+}
