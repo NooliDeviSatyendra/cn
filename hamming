@@ -1,0 +1,49 @@
+import java.util.*;
+
+public class HammingCode {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter data bits: ");
+        String data = sc.nextLine();
+
+        List<Integer> bits = new ArrayList<>();
+        for (char c : data.toCharArray())
+            bits.add(c - '0');
+
+        int m = bits.size();
+        int r = 0;
+
+        while (Math.pow(2, r) < (m + r + 1))
+            r++;
+
+        int total = m + r;
+        int[] hamming = new int[total + 1];
+
+        int j = 0;
+        for (int i = 1; i <= total; i++) {
+            if ((i & (i - 1)) == 0)
+                hamming[i] = 0;
+            else
+                hamming[i] = bits.get(j++);
+        }
+
+        for (int i = 0; i < r; i++) {
+            int pos = (int) Math.pow(2, i);
+            int parity = 0;
+
+            for (int k = 1; k <= total; k++) {
+                if ((k & pos) != 0)
+                    parity ^= hamming[k];
+            }
+            hamming[pos] = parity;
+        }
+
+        System.out.print("Generated Hamming Code: ");
+        for (int i = 1; i <= total; i++)
+            System.out.print(hamming[i]);
+        System.out.println();
+
+        sc.close();
+    }
+}
