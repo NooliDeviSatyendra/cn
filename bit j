@@ -1,0 +1,32 @@
+import java.util.Scanner;
+
+public class BitStuffing {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter bit stream: ");
+        String input = sc.nextLine();
+
+        StringBuilder output = new StringBuilder();
+        int count = 0;
+
+        for (char bit : input.toCharArray()) {
+            output.append(bit);
+
+            if (bit == '1') {
+                count++;
+                if (count == 5) {
+                    output.append('0'); // Stuffed bit
+                    count = 0;           // reset
+                }
+            } else {
+                count = 0;
+            }
+        }
+
+        System.out.println("Original Bits : " + input);
+        System.out.println("Stuffed Bits  : " + output.toString());
+
+        sc.close();
+    }
+}
